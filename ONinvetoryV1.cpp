@@ -300,9 +300,6 @@ SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
     msg.Format("net long: %.0f", (Avolume - Bvolume));
     sc.AddMessageToLog(msg, 1);
 
-    int fuckinghell = 324;
-
-
     SCString ValueText;
     ValueText.Format("up volume: %.0f \ndown volume: %.0f \nup volume percentage: %.02f \nON session from: %d to %d", Avolume, Bvolume, overnightVolumePercentage, sday, eday);
 
