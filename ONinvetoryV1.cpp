@@ -1,15 +1,13 @@
+
+
+//I FUCKING HATE CPP 
+
 #include "sierrachart.h"
 SCDLLName("ONIv1")
 
 SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
 {
     SCString msg;
-
-    //sub graphs to show the volume above and below
-    SCSubgraphRef s_volumeRatio = sc.Subgraph[0];
-    SCSubgraphRef s_volumeAbove = sc.Subgraph[1];
-    SCSubgraphRef s_volumeBelow = sc.Subgraph[2];
-    
 
     //inputs for the start date and time of the calculation of ON inventory 
     
@@ -24,27 +22,18 @@ SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
     SCInputRef i_sSecond = sc.Input[8];
     SCInputRef i_eSecond = sc.Input[9];
 
+    //display on the top right hand corner of chart 
+	SCSubgraphRef Subgraph_TextDisplay = sc.Subgraph[0];
+	SCInputRef Input_HorizontalPosition = sc.Input[11];
+	SCInputRef Input_VerticalPosition = sc.Input[12];
+
     sc.MaintainVolumeAtPriceData = 1;
 
     if (sc.SetDefaults)
     {
         sc.GraphName = "ONInventory";
         sc.GraphRegion = 0;
-
         
-        s_volumeAbove.Name = "volume traded above";
-        s_volumeAbove.PrimaryColor = RGB(0, 128, 0);
-        s_volumeAbove.LineStyle = LINESTYLE_SOLID;
-
-        s_volumeBelow.Name = "Volume traded below";
-        s_volumeBelow.PrimaryColor = RGB(255, 0, 0);
-        s_volumeBelow.LineStyle = LINESTYLE_SOLID;
-
-        s_volumeRatio.Name = "Ratio of volume traded above vs below";
-        s_volumeRatio.PrimaryColor = RGB(128, 128, 128);
-        s_volumeRatio.LineStyle = LINESTYLE_SOLID;
-        
-
         i_year.Name = "Year";
         i_year.SetInt(2024);
         
@@ -52,10 +41,10 @@ SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
         i_month.SetInt(10);
 
         i_sday.Name = "Start Date";
-        i_sday.SetInt(27);
+        i_sday.SetInt(24);
 
         i_eday.Name = "End Date";
-        i_eday.SetInt(28);
+        i_eday.SetInt(25);
 
         i_shour.Name = "Start Hour";
         i_shour.SetInt(16);
@@ -64,16 +53,33 @@ SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
         i_ehour.SetInt(9);
 
         i_sminute.Name = "Start Minutes";
-        i_sminute.SetInt(0);
+        i_sminute.SetInt(15);
         
         i_eminute.Name = "End Minutes";
-        i_eminute.SetInt(0);
+        i_eminute.SetInt(25);
 
         i_sSecond.Name = "Start Seconds";
         i_sSecond.SetInt(0);
 
         i_eSecond.Name = "End Seconds";
         i_eSecond.SetInt(0);
+
+        Subgraph_TextDisplay.Name = "Text Display";
+		Subgraph_TextDisplay.LineWidth = 10;
+		Subgraph_TextDisplay.DrawStyle = DRAWSTYLE_CUSTOM_TEXT;
+		Subgraph_TextDisplay.PrimaryColor = RGB(0, 0, 0); //black
+		Subgraph_TextDisplay.SecondaryColor = RGB(255, 255, 255);
+		Subgraph_TextDisplay.SecondaryColorUsed = true;
+		Subgraph_TextDisplay.DisplayNameValueInWindowsFlags = 0;
+
+		Input_HorizontalPosition.Name.Format("Horizontal Position From Left (1-%d)", static_cast<int>(CHART_DRAWING_MAX_HORIZONTAL_AXIS_RELATIVE_POSITION));
+		Input_HorizontalPosition.SetInt(20);
+		Input_HorizontalPosition.SetIntLimits(1, static_cast<int>(CHART_DRAWING_MAX_HORIZONTAL_AXIS_RELATIVE_POSITION));
+
+		Input_VerticalPosition.Name.Format("Vertical Position From Bottom (1-%d)", static_cast<int>(CHART_DRAWING_MAX_VERTICAL_AXIS_RELATIVE_POSITION));
+		Input_VerticalPosition.SetInt(90);
+		Input_VerticalPosition.SetIntLimits(1, static_cast<int>(CHART_DRAWING_MAX_VERTICAL_AXIS_RELATIVE_POSITION));
+
 
         return;
     }
@@ -205,7 +211,6 @@ SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
     for each price, it will run to find the total volume at each price level
     this total volume at each price level will be appended to an array
     we will sum this array of volumes as the total total volume 
-
     */
 
 
@@ -251,7 +256,6 @@ SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
 
     }
     
-
     for (int price = open, i = 0;  i < numEA; i++, price++){
         
         totalVolumeAtPrice = 0;
@@ -288,14 +292,32 @@ SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
     msg.Format("down volume %f", Bvolume);
     sc.AddMessageToLog(msg, 1);
     
-    float overnightVolumePercentage = (Avolume/Bvolume)*100;
+    float overnightVolumePercentage = ((Avolume/Bvolume)*100);
     msg.Format("volume above percentage %.2f", overnightVolumePercentage);
     sc.AddMessageToLog(msg, 1);
 
 
     msg.Format("net long: %.0f", (Avolume - Bvolume));
     sc.AddMessageToLog(msg, 1);
-    
+
+    int fuckinghell = 324;
+
+
+    SCString ValueText;
+    ValueText.Format("up volume: %.0f \ndown volume: %.0f \nup volume percentage: %.02f \nON session from: %d to %d", Avolume, Bvolume, overnightVolumePercentage, sday, eday);
+
+
+    sc.AddAndManageSingleTextDrawingForStudy
+        (
+            sc,                          // Sierra Chart Interface
+            false,                       // Not persistent, meaning the drawing is not saved across chart redraws
+            Input_HorizontalPosition.GetInt(),  // Horizontal position of the text
+            Input_VerticalPosition.GetInt(),    // Vertical position of the text
+            Subgraph_TextDisplay,         // Subgraph properties (like color, style, etc.)
+            false,                       // Not selectable
+            ValueText,                   // The actual text to display (containing the value or label)
+            true                         // Whether to draw the text or update existing text
+        );
 
 }
 
