@@ -127,6 +127,11 @@ SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
         }
     }
 
+    if(endbarindex == 0){
+        endbarindex = sc.ArraySize;
+        
+    }
+
     //print the values 
     msg.Format("start index: %d, %d, %d, %d", startBarIndex, shour, sminute, sseconds);
     sc.AddMessageToLog(msg, 1);
@@ -292,16 +297,22 @@ SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
     msg.Format("down volume %f", Bvolume);
     sc.AddMessageToLog(msg, 1);
     
-    float overnightVolumePercentage = ((Avolume/Bvolume)*100);
-    msg.Format("volume above percentage %.2f", overnightVolumePercentage);
+
+    float totalVolume = Avolume + Bvolume;
+    
+    float overnightUpVolumePercentage = ((Avolume/(Bvolume + Avolume))*100);
+    msg.Format("volume above percentage %.2f", overnightUpVolumePercentage);
     sc.AddMessageToLog(msg, 1);
 
+    float overnightDownVolumePercentage = ((Bvolume/(Bvolume + Avolume))*100);
+    msg.Format("volume above percentage %.2f", overnightDownVolumePercentage);
+    sc.AddMessageToLog(msg, 1);
 
     msg.Format("net long: %.0f", (Avolume - Bvolume));
     sc.AddMessageToLog(msg, 1);
 
     SCString ValueText;
-    ValueText.Format("up volume: %.0f \ndown volume: %.0f \nup volume percentage: %.02f \nON session from: %d to %d", Avolume, Bvolume, overnightVolumePercentage, sday, eday);
+    ValueText.Format("total volume: %.0f \nup volume: %.0f \ndown volume: %.0f \nup volume percentage: %.02f \ndown volume percentage: %.02f \nON session from: %d to %d", totalVolume, Avolume, Bvolume, overnightUpVolumePercentage, overnightDownVolumePercentage, sday, eday);
 
 
     sc.AddAndManageSingleTextDrawingForStudy
