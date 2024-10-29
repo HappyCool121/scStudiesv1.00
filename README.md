@@ -1,2 +1,3 @@
 # scStudiesv1.00
-list of custom studies for Sierra chart
+custom studies for sierra chart
+
