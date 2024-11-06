@@ -2,12 +2,12 @@
 
 //I FUCKING HATE CPP 
 
-#include "sierrachart.h"
-SCDLLName("ONIv1")
+    #include "sierrachart.h"
+    SCDLLName("ONIv1")
 
-SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
-{
-    SCString msg;
+    SCSFExport scsf_ONI1(SCStudyInterfaceRef sc)
+    {
+        SCString msg;
 
     //inputs for the start date and time of the calculation of ON inventory 
     

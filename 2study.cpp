@@ -14,7 +14,7 @@ SCSFExport scsf_study2(SCStudyInterfaceRef sc)
     if (sc.SetDefaults)
     {
         sc.GraphName = "study2";
-        sc.GraphRegion = 1;
+        sc.GraphRegion = 2;
 
         s_NumHighs.Name = "Number of highs";
         s_NumHighs.PrimaryColor = COLOR_YELLOW;
